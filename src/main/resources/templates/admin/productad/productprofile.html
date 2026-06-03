@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<body>
+	<div class="container-fluid">
+
+		<!-- TITLE -->
+		<h1 class="h3 mb-4 text-gray-800">
+			<i class="fas fa-store mr-2"></i>Danh sách sản phẩm 
+		</h1>
+
+		<div class="card shadow-sm mb-4">
+			<div class="card-header py-3 d-flex justify-content-between align-items-center">
+				<h6 class="m-0 font-weight-bold text-primary">
+					Thông tin Seller Profile
+				</h6>
+			</div>
+
+			<div class="card-body">
+				<div class="table-responsive">
+
+					<table class="table table-bordered table-hover align-middle text-center">
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Ảnh</th>
+								<th>Tên sản phẩm</th>
+								<th>Danh mục</th>
+								<th>Seller</th>
+								<th>Giá</th>
+								<th>Kho</th>
+								<th>Đánh giá</th>
+								<th>Trạng thái</th>
+								<th>Ngày tạo</th>
+								<th>Hành động</th>
+							</tr>
+						</thead>
+
+
+						<tbody>
+							<tr th:each="p : ${products}"
+								th:onclick="|window.location.href='@{/admin/productad/detail/{id}(id=${p.id})}'|"
+								style="cursor:pointer;">
+
+								<td th:text="${p.id}"></td>
+
+								<!-- IMAGE -->
+								<td>
+									<img th:src="@{'/assets/images/' + ${p.photo}}" class="rounded shadow-sm"
+										style="width:55px;height:55px;object-fit:cover;">
+								</td>
+
+								<!-- NAME -->
+								<td th:text="${p.nameProduct}" class="font-weight-bold"></td>
+
+								<!-- CATEGORY -->
+								<td th:text="${p.categoryName}"></td>
+
+								<!-- SELLER -->
+								<td th:text="${p.sellerProfileName}"></td>
+
+								<!-- PRICE -->
+								<td>
+									<span th:if="${p.discountPrice > 0}" class="text-danger font-weight-bold">
+										<span
+											th:text="${#numbers.formatDecimal(p.discountPrice,0,'COMMA',0,'POINT')}"></span>
+										₫
+									</span>
+									<span th:if="${p.discountPrice == 0}">
+										<span th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')}"></span> ₫
+									</span>
+								</td>
+
+								<!-- STOCK -->
+								<td th:text="${p.stockQuantity}"></td>
+
+								<!-- RATING -->
+								<td>
+									<span class="badge badge-info">
+										<i class="fas fa-star mr-1"></i>
+										<span th:text="${p.avgRating}"></span>
+										(<span th:text="${p.reviewCount}"></span>)
+									</span>
+								</td>
+
+								<!-- STATUS -->
+								<td>
+									<span class="badge px-3 py-2" th:text="${p.status}" th:classappend="
+								       ${p.status.name() == 'ACTIVE'} ? ' badge-success' :
+								       (${p.status.name() == 'PENDING'} ? ' badge-warning' :
+								       (${p.status.name() == 'REJECTED'} ? ' badge-danger' :
+								       ' badge-secondary'))
+								      ">
+									</span>
+								</td>
+
+								<td th:text="${#dates.format(p.createdAt,'dd/MM/yyyy')}"></td>
+
+								<!-- ACTION -->
+								<td onclick="event.stopPropagation();">
+
+									<!-- APPROVE -->
+									<form th:if="${p.status.name() == 'PENDING'}"
+										th:action="@{/admin/productad/active/{id}(id=${p.id})}" method="post"
+										style="display:inline;">
+										<button class="btn btn-sm btn-success"
+											onclick="return confirm('Duyệt sản phẩm này?')">
+											Duyệt
+										</button>
+									</form>
+
+									<!-- REJECT -->
+									<form th:if="${p.status.name() == 'PENDING'}"
+										th:action="@{/admin/productad/banned/{id}(id=${p.id})}" method="post"
+										style="display:inline;">
+										<button class="btn btn-sm btn-warning"
+											onclick="return confirm('Từ chối sản phẩm này?')">
+											Từ chối
+										</button>
+									</form>
+
+								</td>
+							</tr>
+
+							<!-- EMPTY -->
+							<tr th:if="${#lists.isEmpty(products)}">
+								<td colspan="11" class="text-center text-muted py-4">
+									<i class="fas fa-box-open fa-2x mb-2"></i><br>
+									Chưa có sản phẩm nào
+								</td>
+							</tr>
+						</tbody>
+
+
+</html>

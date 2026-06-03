@@ -1,0 +1,7 @@
+<form th:action="@{/payment/paypal/create}" method="post">
+    <input type="hidden" name="total" th:value="${total}" />
+    <input type="hidden" name="orderId" th:value="${orderId}">
+    <button type="submit" class="btn btn-primary">
+        Thanh toán PayPal
+    </button>
+</form>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Thêm Promotion</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin Promotion</h6>
+        </div>
+
+        <div class="card-body">
+
+            <form th:action="@{/admin/promotion/add}"
+                  method="post"
+                  th:object="${promotion}">
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label>Tên Promotion</label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{namePromotion}"
+                           required>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label>Mô tả</label>
+                    <textarea class="form-control"
+                              th:field="*{description}"
+                              rows="3"></textarea>
+                </div>
+
+                <!-- Discount Type -->
+                <div class="form-group">
+                    <label>Loại giảm giá</label>
+                    <select class="form-control"
+                            th:field="*{discountType}">
+                        <option th:each="t : ${discountTypes}"
+                                th:value="${t}"
+                                th:text="${t}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Discount Value -->
+                <div class="form-group">
+                    <label>Giá trị giảm</label>
+                    <input type="number"
+                           class="form-control"
+                           th:field="*{discountValue}"
+                           min="0"
+                           required>
+                    <small class="text-muted">
+                        % nếu là PERCENT_DISCOUNT, số tiền nếu là FIXED_DISCOUNT
+                    </small>
+                </div>
+
+                <!-- Max discount -->
+                <div class="form-group">
+                    <label>Giảm tối đa</label>
+                    <input type="number"
+                           class="form-control"
+                           th:field="*{maxDiscount}"
+                           min="0">
+                </div>
+
+                <!-- Min order -->
+                <div class="form-group">
+                    <label>Giá trị đơn hàng tối thiểu</label>
+                    <input type="number"
+                           class="form-control"
+                           th:field="*{minOrderValue}"
+                           min="0">
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label>Số lượng promotion</label>
+                    <input type="number"
+                           class="form-control"
+                           th:field="*{quantityPromotion}"
+                           min="0">
+                </div>
+
+                <!-- Start / End -->
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Ngày bắt đầu</label>
+                        <input type="date"
+                               class="form-control"
+                               th:field="*{startDate}">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Ngày kết thúc</label>
+                        <input type="date"
+                               class="form-control"
+                               th:field="*{endDate}">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label>Trạng thái</label>
+                    <select class="form-control"
+                            th:field="*{statusPromotion}">
+                        <option th:each="s : ${statuses}"
+                                th:value="${s}"
+                                th:text="${s}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Buttons -->
+                <button type="submit"
+                        class="btn btn-success">
+                    Lưu Promotion
+                </button>
+
+                <a th:href="@{/admin/promotion}"
+                   class="btn btn-secondary ml-2">
+                    Quay lại
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

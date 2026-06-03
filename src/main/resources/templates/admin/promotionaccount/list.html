@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Quản lý Account</h1>
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Danh sách tài khoản
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+
+                    <thead class="thead-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Họ tên</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Trạng thái</th>
+                        <th width="160">Promotion</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+
+                    <tr th:each="a : ${accounts}">
+						
+                        <td>
+							<a th:href="@{'/admin/promotionaccount/listpfa/'+${a.id}}" th:text="${a.id}"></a>
+						</td>
+
+                        <td th:text="${a.fullName}"></td>
+
+                        <td th:text="${a.username}"></td>
+
+                        <td th:text="${a.email}"></td>
+
+                        <td class="text-center">
+                            <span class="badge badge-success"
+                                  th:if="${a.status.name() == 'ACTIVE'}">
+                                ACTIVE
+                            </span>
+                            <span class="badge badge-secondary"
+                                  th:if="${a.status.name() != 'ACTIVE'}">
+                                INACTIVE
+                            </span>
+                        </td>
+
+                        <!-- ACTION -->
+                        <td class="text-center">
+                            <a th:href="@{/admin/promotionaccount/assign(accountId=${a.id})}"
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-tags"></i>
+                                Gán Promotion
+                            </a>
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(accounts)}">
+                        <td colspan="6" class="text-center text-muted">
+                            Không có tài khoản nào
+                        </td>
+                    </tr>
+
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

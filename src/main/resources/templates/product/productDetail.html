@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/user :: content(~{this :: body})}">
+
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+
+<head>
+
+</head>
+
+<body>
+
+
+	<!-- Start Hero Section -->
+	<div class="hero">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1>Product Detail</h1>
+						<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam
+							vulputate velit imperdiet dolor tempor tristique.</p>
+						<p><a th:href="@{/product/index}" class="btn btn-secondary me-2">Shop Now</a><a href="#"
+								class="btn btn-white-outline">Explore</a></p>
+
+					</div>
+					
+
+				</div>
+				<div class="col-lg-7">
+					<div class="hero-img-wrap">
+						<img th:src="@{/assets/user/images/couch.png}" class="img-fluid">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+
+
+	<!-- Start Why Choose Us Section -->
+	<div class="why-choose-section">
+		<div class="container">
+			<div class="row justify-content-between align-items-center">
+				<div class="col-lg-6">
+					<h2 class="section-title">
+						<th:block th:text="${product.nameProduct}"></th:block>
+					</h2>
+					<p>
+						<th:block th:text="${product.description}"></th:block>
+					</p>
+
+					<div class="row my-5">
+						<div class="col-6 col-md-6">
+							<div class="feature">
+								<div class="icon">
+									<img th:src="@{/assets/user/images/truck.svg}" alt="Image" class="imf-fluid">
+								</div>
+								<h3>Dimensions &amp; VWeight sku Shipping</h3>
+								<p>The product has the following dimensions: <th:block th:text="${product.dimensions}">
+									</th:block>
+								</p>
+								<p> weight is: <th:block th:text="${product.weight}">
+									</th:block>
+								</p>
+								<p> and SKU is: <th:block th:text="${product.sku}">
+									</th:block>
+								</p>
+							</div>
+						</div>
+
+						<div class="col-6 col-md-6">
+							<div class="feature">
+								<div class="icon">
+									<img th:src="@{/assets/user/images/bag.svg}" alt="Image" class="imf-fluid">
+								</div>
+								<h3>Name Shop</h3>
+								<p>
+									<th:block th:text="${product.sellerProfileName}"></th:block>
+								</p>
+								<button class="btn btn-sm btn-outline-primary mt-2" th:if="${currentAccount != null}" 
+                                        th:onclick="'startChat(' + ${product.sellerAccountId} + ')'">
+                                    <i class="fa fa-comments"></i> Chat with Seller
+                                </button>
+							</div>
+						</div>
+
+						<div class="col-6 col-md-6">
+							<div class="feature">
+								<div class="icon">
+									<img th:src="@{/assets/user/images/support.svg}" alt="Image" class="imf-fluid">
+								</div>
+								<h3>PRICE & DISCOUNT PRICE</h3>
+								<p>PRICE :<th:block th:text="${product.price}"></th:block>
+								</p>
+								<p>DISCOUNT PRICE : <th:block th:text="${product.discountPrice}"></th:block>
+								</p>
+							</div>
+						</div>
+
+						<div class="col-6 col-md-6">
+							<div class="feature">
+								<div class="icon">
+									<img th:src="@{/assets/user/images/return.svg}" alt="Image" class="imf-fluid">
+								</div>
+								<h3>PHOTO DETAIL</h3>
+								<p>
+									<th:block th:each="productI : ${productImg}">
+										<img th:src="@{'/assets/images/'+${productI.image}}" width="50" height="50"
+											class="img-fluid img-thumb" style="cursor:pointer"
+											th:attr="data-img=@{'/assets/images/'+${productI.image}}">
+									</th:block>
+								</p>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+				<div class="col-lg-5">
+					<div class="img-wrap">
+						<img th:src="@{'/assets/images/'+${product.photo}}" alt="Image" class="img-fluid">
+					</div>
+				</div>
+				<form th:action="@{/cart/buy-now}" method="post">
+					<input type="hidden" name="productId" th:value="${product.id}">
+					<button class="btn btn-danger">Mua ngay</button>
+				</form>
+			</div>
+		</div>
+	</div>
+	<!-- End Why Choose Us Section -->
+
+	<!-- Start Team Section -->
+	<div class="untree_co-section">
+		<div class="container">
+
+			<div class="row mb-5">
+				<div class="col-lg-5 mx-auto text-center">
+					<h2 class="section-title">Related Products</h2>
+				</div>
+			</div>
+
+			<div class="row">
+
+				<div class="col-12 col-md-6 col-lg-3 mb-5 mb-md-0" th:each="productR : ${productRelateds}">
+					<a th:href="@{'/product/productDetail/'+${productR.id}+'/'+${productR.categoryId}}">
+						<img th:src="@{'/assets/images/'+${productR.photo}}" class="img-fluid mb-5"></a>
+					<h3 clas><a th:href="@{'/product/productDetail/'+${productR.id}+'/'+${productR.categoryId}}"><span
+								class="" th:text="${productR.nameProduct}"></span></a></h3>
+					<span class="d-block position mb-4">PRICE <th:block th:text="${productR.price}"></th:block></span>
+					<p th:text="${productR.description}"></p>
+					<p class="mb-0"><a href="#" class="more dark">Buy now<span class="icon-arrow_forward"></span></a>
+					</p>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+	<!-- End Team Section -->
+
+
+
+	<!-- Start Testimonial Slider -->
+	<div class="testimonial-section before-footer-section">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-7 mx-auto text-center">
+					<h2 class="section-title">Testimonials</h2>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-lg-12">
+					<div class="testimonial-slider-wrap text-center">
+
+						<div id="testimonial-nav">
+							<span class="prev" data-controls="prev"><span class="fa fa-chevron-left"></span></span>
+							<span class="next" data-controls="next"><span class="fa fa-chevron-right"></span></span>
+						</div>
+
+						<div class="testimonial-slider">
+
+							<div class="item">
+								<div class="row justify-content-center">
+									<div class="col-lg-8 mx-auto">
+
+										<div class="testimonial-block text-center">
+											<blockquote class="mb-5">
+												<p>&ldquo;Donec facilisis quam ut purus rutrum lobortis. Donec vitae
+													odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam
+													vulputate velit imperdiet dolor tempor tristique. Pellentesque
+													habitant morbi tristique senectus et netus et malesuada fames ac
+													turpis egestas. Integer convallis volutpat dui quis
+													scelerisque.&rdquo;</p>
+											</blockquote>
+
+											<div class="author-info">
+												<div class="author-pic">
+													<img th:src="@{/assets/user/images/person-1.png}" alt="Maria Jones"
+														class="img-fluid">
+												</div>
+												<h3 class="font-weight-bold">Maria Jones</h3>
+												<span class="position d-block mb-3">CEO, Co-Founder, XYZ Inc.</span>
+											</div>
+										</div>
+
+									</div>
+								</div>
+							</div>
+
+
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="imageModal" tabindex="-1">
+		<div class="modal-dialog modal-dialog-centered modal-lg">
+			<div class="modal-content">
+				<div class="modal-body text-center">
+					<img id="modalImage" src="" class="img-fluid">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- End Testimonial Slider -->
+    <script th:inline="javascript">
+        function startChat(sellerAccountId) {
+            console.log('>>> productDetail.html: startChat called for seller account ID:', sellerAccountId);
+            if (!sellerAccountId) {
+                console.error('>>> productDetail.html: No sellerAccountId provided!');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('recipientId', sellerAccountId);
+            
+            console.log('Fetching chat creation result...');
+            fetch('/user/chat/create', {
+                method: 'POST',
+                body: formData
+            })
+            .then(async res => {
+                console.log('>>> productDetail.html: Response status:', res.status);
+                const text = await res.text();
+                console.log('>>> productDetail.html: Raw response:', text);
+                if (!res.ok) throw new Error('Failed to create/get chat: ' + text);
+                if (!text || text === 'null') throw new Error('Server returned empty or null chat ID');
+                return JSON.parse(text);
+            })
+            .then(chatId => {
+                console.log('Chat created/found with ID:', chatId);
+                // Open chat container if hidden
+                const toggle = document.getElementById('chat-toggle');
+                if (toggle) {
+                    console.log('Setting chat-toggle to checked');
+                    toggle.checked = true;
+                } else {
+                    console.error('chat-toggle element not found!');
+                }
+                
+                if (typeof loadChatList === 'function') {
+                    console.log('Calling loadChatList...');
+                    loadChatList();
+                }
+                
+                // If chat function is available in user.html
+                if (typeof selectChat === 'function') {
+                    console.log('Calling selectChat...');
+                    selectChat(chatId, /*[[${product.sellerProfileName}]]*/ 'Seller');
+                } else {
+                    console.error('selectChat function not found! Is the chat script loaded?');
+                }
+            })
+            .catch(err => console.error('Error starting chat:', err));
+        }
+    </script>
+</body>
+
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me -->
+
+</html>

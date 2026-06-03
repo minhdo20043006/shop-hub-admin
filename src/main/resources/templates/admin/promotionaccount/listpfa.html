@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+	<div class="container-fluid">
+
+		<h1 class="h3 mb-4 text-gray-800">Quản lý Promotion của Account</h1>
+
+		<div class="card shadow mb-4">
+
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">
+					Danh sách mã giảm giá
+				</h6>
+			</div>
+
+			<div class="card-body">
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover">
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Tên Promotion</th>
+								<th>Tên người sở hữu</th>
+								<th width="160">Hành động</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="p : ${promotionfas}">
+								<!-- ID -->
+								<td th:text="${p.id}"></td>
+
+								<!-- Name -->
+								<td th:text="${p.promotionName}"></td>
+
+								<!-- Discount type -->
+								<td th:text="${p.accountName}"></td>
+								<!-- Actions -->
+								<td class="text-center">
+
+									<form th:action="@{/admin/promotionaccount/remove}" method="post" class="d-inline">
+
+										<input type="hidden" name="promotionId" th:value="${p.promotionId}">
+										<input type="hidden" name="accountId" th:value="${p.accountId}">
+
+										<button type="submit">X</button>
+									</form>
+
+								</td>
+
+
+							</tr>
+
+							<tr th:if="${#lists.isEmpty(promotions)}">
+								<td colspan="7" class="text-center text-muted">
+									Không có promotion nào
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+
+		</div>
+</body>
+
+</html>

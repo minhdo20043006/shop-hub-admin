@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+	<div class="container-fluid">
+
+		<h1 class="h3 mb-4 text-gray-800">Quản lý Promotion</h1>
+
+		<div class="card shadow mb-4">
+
+			<div class="card-header py-3 d-flex justify-content-between align-items-center">
+				<h6 class="m-0 font-weight-bold text-primary">Danh sách Promotion</h6>
+
+				<a th:href="@{/admin/promotion/add}" class="btn btn-sm btn-success">
+					<i class="fas fa-plus"></i> Thêm Promotion
+				</a>
+			</div>
+
+			<div class="card-body">
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover">
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Tên Promotion</th>
+								<th>Loại giảm</th>
+								<th>Giá trị giảm</th>
+								<th>Thời gian</th>
+								<th>Trạng thái</th>
+								<th width="160">Hành động</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="p : ${promotions}">
+								<!-- ID -->
+								<td th:text="${p.id}"></td>
+
+								<!-- Name -->
+								<td th:text="${p.namePromotion}"></td>
+
+								<!-- Discount type -->
+								<td th:text="${p.discountType}"></td>
+
+								<!-- Discount value -->
+								<td>
+									<span th:if="${p.discountType.name() == 'PERCENT_DISCOUNT'}"
+										th:text="${p.discountValue + '%'}"></span>
+
+									<span th:if="${p.discountType.name() == 'FIXED_DISCOUNT'}"
+										th:text="${#numbers.formatDecimal(p.discountValue,0,'COMMA',0,'POINT')} + ' đ'"></span>
+
+									<span th:if="${p.discountType.name() == 'FREE_SHIPPING'}">
+										Free ship
+									</span>
+
+									<span th:if="${p.discountType.name() == 'BUY_X_GET_Y'}">
+										Mua X tặng Y
+									</span>
+
+									<span th:if="${p.discountType.name() == 'COMBO_DISCOUNT'}">
+										Combo
+									</span>
+								</td>
+
+								<!-- Date -->
+								<td>
+									<span th:text="${#dates.format(p.startDate,'dd/MM/yyyy')}"></span>
+									→
+									<span th:text="${#dates.format(p.endDate,'dd/MM/yyyy')}"></span>
+								</td>
+
+								<!-- Status -->
+								<td>
+									<span class="badge badge-secondary"
+										th:if="${p.statusPromotion.name() == 'DRAFT'}">DRAFT</span>
+
+									<span class="badge badge-success"
+										th:if="${p.statusPromotion.name() == 'ACTIVE'}">ACTIVE</span>
+
+									<span class="badge badge-dark"
+										th:if="${p.statusPromotion.name() == 'DISABLED'}">DISABLED</span>
+
+									<span class="badge badge-danger"
+										th:if="${p.statusPromotion.name() == 'EXPIRED'}">EXPIRED</span>
+								</td>
+
+								<!-- Actions -->
+								<td class="text-center">
+
+								    <form th:action="@{/admin/promotion/update-status}"
+								          method="post"
+								          class="d-inline">
+
+								        <input type="hidden" name="id" th:value="${p.id}">
+								        <input type="hidden" name="statusPromotion"
+								               th:value="${p.statusPromotion.name() == 'ACTIVE' ? 'DISABLED' : 'ACTIVE'}">
+
+								        <button class="btn btn-sm"
+								                th:classappend="${p.statusPromotion.name() == 'ACTIVE'}
+								                    ? ' btn-outline-danger'
+								                    : ' btn-outline-success'"
+								                th:title="${p.statusPromotion.name() == 'ACTIVE'}
+								                    ? 'Vô hiệu hóa promotion'
+								                    : 'Kích hoạt promotion'"
+								                onclick="return confirm('Bạn chắc chắn muốn thay đổi trạng thái?')">
+
+								            <i class="fas"
+								               th:classappend="${p.statusPromotion.name() == 'ACTIVE'}
+								                    ? ' fa-toggle-on'
+								                    : ' fa-toggle-off'"></i>
+
+								            <span th:text="${p.statusPromotion.name() == 'ACTIVE'}
+								                    ? ' DISABLED'
+								                    : ' ACTIVE'"></span>
+								        </button>
+								    </form>
+
+								</td>
+
+
+							</tr>
+
+							<tr th:if="${#lists.isEmpty(promotions)}">
+								<td colspan="7" class="text-center text-muted">
+									Không có promotion nào
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/seller :: content(~{this :: body})}">
+
+
+
+<head>
+
+</head>
+
+<body>
+	<div class="container-fluid">
+		<h1 class="h3 mb-4 text-gray-800">Messages</h1>
+
+		<div class="card shadow mb-4">
+			<div class="card-body p-0">
+				<div class="row no-gutters" style="height: 600px;">
+					<!-- Left Side: Chat List -->
+					<div class="col-md-4 border-right d-flex flex-column">
+						<div class="p-3 bg-light border-bottom">
+							<div class="input-group">
+								<input type="text" class="form-control bg-white border-0 small" placeholder="Search contact...">
+								<div class="input-group-append">
+									<button class="btn btn-primary" type="button">
+										<i class="fas fa-search fa-sm"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+						<div class="overflow-auto flex-grow-1 chat-list-wrapper">
+							<div class="list-group list-group-flush" id="chat-user-list">
+								<!-- Chat list items will be injected here -->
+							</div>
+						</div>
+					</div>
+
+					<!-- Right Side: Message Area -->
+					<div class="col-md-8 d-flex flex-column">
+						<!-- Chat Header -->
+						<div class="p-3 bg-white border-bottom shadow-sm" id="chat-room-area" style="display: none;">
+							<div class="d-flex align-items-center">
+								<div class="avatar-circle bg-success text-white mr-2" id="header-avatar">?</div>
+								<div>
+									<h6 class="mb-0 font-weight-bold" id="active-chat-name">Select a conversation</h6>
+									<small class="text-success">Online</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Messages -->
+						<div class="flex-grow-1 p-3 overflow-auto bg-light d-flex flex-column" id="message-container" style="display: none !important;">
+							<!-- Messages will be injected here -->
+						</div>
+                        
+                        <div class="chat-main-empty flex-grow-1 d-flex align-items-center justify-content-center bg-light" id="chat-empty-state">
+                            <p class="text-muted">Select a chat to start messaging</p>
+                        </div>
+
+						<!-- Input Area -->
+						<div class="p-3 bg-white border-top" id="input-area" style="display: none;">
+							<div class="input-group">
+								<input type="text" id="chat-input" class="form-control bg-light border-0" placeholder="Type a message...">
+								<div class="input-group-append">
+									<button class="btn btn-primary" type="button" onclick="sendChatMessage()" id="send-btn">
+										<span class="d-none d-md-inline">Send</span>
+										<i class="fas fa-paper-plane d-md-none"></i>
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script th:inline="javascript">
+            console.log('>>> SELLER CHAT SCRIPT: Initializing...');
+			let stompClient = null;
+			let currentChatId = null;
+			const userId = /*[[${currentAccount.id}]]*/ null;
+			const jwtToken = /*[[${session.JWT}]]*/ '';
+            console.log('>>> SELLER CHAT SCRIPT: userId =', userId, 'JWT available =', !!jwtToken);
+
+			function connect() {
+				const socket = new SockJS('http://localhost:8081/ws');
+				stompClient = Stomp.over(socket);
+				stompClient.connect({ 'Authorization': 'Bearer ' + jwtToken }, function (frame) {
+					console.log('>>> Connected: ' + frame);
+					loadChatList();
+                    
+                    // Subscribe to global refreshes for this user (for any chat activity)
+                    stompClient.subscribe('/topic/user-chats/' + userId, function () {
+                        console.log('>>> Global refresh signal received');
+                        loadChatList();
+                    });
+				}, function (error) {
+					console.error('>>> STOMP error: ' + error);
+				});
+			}
+
+			function loadChatList() {
+				fetch('/user/chat/list')
+					.then(res => res.json())
+					.then(chats => {
+						const listEl = document.getElementById('chat-user-list');
+						listEl.innerHTML = '';
+						
+						if (chats.length === 0) {
+							listEl.innerHTML = '<div class="p-3 text-center text-muted">No conversations yet</div>';
+							return;
+						}
+
+						chats.forEach(chat => {
+							const chatItem = document.createElement('div');
+							chatItem.className = 'list-group-item list-group-item-action border-0 p-3';
+                            if(currentChatId === chat.chatId) chatItem.classList.add('active');
+							chatItem.onclick = () => selectChat(chat.chatId, chat.chatName);
+                            
+                            const initials = chat.chatName ? chat.chatName.substring(0, 2).toUpperCase() : '??';
+							chatItem.innerHTML = `
+								<div class="d-flex align-items-center">
+									<div class="avatar-circle bg-primary text-white mr-3">${initials}</div>
+									<div class="w-100">
+										<div class="d-flex justify-content-between align-items-center mb-1">
+											<h6 class="mb-0 font-weight-bold ${currentChatId === chat.chatId ? 'text-white' : ''}">${chat.chatName}</h6>
+											<small class="${currentChatId === chat.chatId ? 'text-white-50' : 'text-muted'}">Now</small>
+										</div>
+										<p class="mb-0 text-truncate ${currentChatId === chat.chatId ? 'text-white-50' : 'text-muted'}" style="max-width: 200px;">${chat.lastMessage || ''}</p>
+									</div>
+								</div>
+							`;
+							listEl.appendChild(chatItem);
+						});
+					});
+			}
+
+			function selectChat(chatId, chatName) {
+				if (currentChatId && stompClient && stompClient.connected) {
+					stompClient.unsubscribe('sub-' + currentChatId);
+				}
+
+				currentChatId = chatId;
+				document.getElementById('active-chat-name').innerText = chatName;
+				document.getElementById('header-avatar').innerText = chatName.substring(0, 2).toUpperCase();
+                
+				document.getElementById('chat-room-area').style.display = 'block';
+				document.getElementById('message-container').style.setProperty('display', 'flex', 'important');
+				document.getElementById('chat-empty-state').style.setProperty('display', 'none', 'important');
+				document.getElementById('input-area').style.display = 'block';
+
+                if (stompClient && stompClient.connected) {
+                    stompClient.subscribe('/topic/chat/' + chatId, function (msg) {
+                        showChatMessage(JSON.parse(msg.body));
+                        loadChatList(); // Refresh sidebar for messages in active chat
+                    }, { id: 'sub-' + chatId });
+                }
+
+				fetch(`/user/chat/${chatId}/messages`)
+					.then(res => res.json())
+					.then(page => {
+						const container = document.getElementById('message-container');
+						container.innerHTML = '';
+                        const messages = page.content || [];
+						messages.slice().reverse().forEach(showChatMessage);
+					});
+                    
+                loadChatList();
+			}
+
+			function showChatMessage(message) {
+				const container = document.getElementById('message-container');
+				const isSent = message.senderId === userId;
+                
+                const msgGroup = document.createElement('div');
+                msgGroup.className = `message-group d-flex flex-column mb-3 ${isSent ? 'align-items-end' : 'align-items-start'}`;
+                
+                msgGroup.innerHTML = `
+                    <div class="message-bubble ${isSent ? 'bg-primary text-white' : 'bg-white text-dark'} p-2 rounded shadow-sm" style="max-width: 70%;">
+                        ${message.content}
+                    </div>
+                    <small class="text-muted ${isSent ? 'mr-1' : 'ml-1'} mt-1">Just now</small>
+                `;
+                
+				container.appendChild(msgGroup);
+				container.scrollTop = container.scrollHeight;
+			}
+
+			function sendChatMessage() {
+				const input = document.getElementById('chat-input');
+				const content = input.value.trim();
+				if (!content || !currentChatId) return;
+
+				const chatMessage = {
+					chatId: currentChatId,
+					content: content,
+					type: 'TEXT'
+				};
+
+				fetch('/user/chat/send', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(chatMessage)
+				}).then(res => {
+					if (res.ok) {
+						input.value = '';
+						loadChatList(); // Refresh sidebar for sent messages
+					}
+				});
+			}
+
+            document.getElementById('chat-input').addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') sendChatMessage();
+            });
+
+			connect();
+		</script>
+
+		<style>
+			.avatar-circle {
+				width: 40px;
+				height: 40px;
+				border-radius: 50%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				font-weight: bold;
+				font-size: 14px;
+				flex-shrink: 0;
+			}
+			.chat-list-wrapper::-webkit-scrollbar,
+			#message-container::-webkit-scrollbar {
+				width: 6px;
+			}
+			.chat-list-wrapper::-webkit-scrollbar-track,
+			#message-container::-webkit-scrollbar-track {
+				background: #f1f1f1;
+			}
+			.chat-list-wrapper::-webkit-scrollbar-thumb,
+			#message-container::-webkit-scrollbar-thumb {
+				background: #ccc;
+				border-radius: 10px;
+			}
+			.chat-list-wrapper::-webkit-scrollbar-thumb:hover,
+			#message-container::-webkit-scrollbar-thumb:hover {
+				background: #999;
+			}
+			.message-bubble {
+				font-size: 14px;
+				position: relative;
+				word-wrap: break-word;
+			}
+			.list-group-item.active {
+				background-color: #4e73df;
+				border-color: #4e73df;
+			}
+			.list-group-item {
+				cursor: pointer;
+				transition: background 0.2s;
+			}
+			.list-group-item:hover:not(.active) {
+				background-color: #f8f9fc;
+			}
+            #message-container {
+                overflow-y: auto;
+                flex: 1 1 0; /* Allow to grow and shrink, start at 0 height */
+                min-height: 0;
+            }
+            .chat-list-wrapper {
+                overflow-y: auto;
+                flex: 1 1 0;
+                min-height: 0;
+            }
+            /* Constraint the columns themselves to the parent height */
+            .col-md-4, .col-md-8 {
+                height: 600px;
+                overflow: hidden;
+            }
+		</style>
+	</div>
+</body>
+
+
+
+
+</html>

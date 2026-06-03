@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head>
+    <script>
+        function onTypeChange() {
+            const type = document.getElementById("typeNotification").value;
+
+            document.getElementById("productBox").style.display =
+                (type === 'PRODUCT') ? 'block' : 'none';
+
+            document.getElementById("categoryBox").style.display =
+                (type === 'CATEGORY') ? 'block' : 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", onTypeChange);
+    </script>
+</head>
+
+<body id="page-top">
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Tạo thông báo</h1>
+<th:block th:text="${success}"></th:block>
+<th:block th:text="${error}"></th:block>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thông tin thông báo</h6>
+        </div>
+
+        <div class="card-body">
+
+            <form th:action="@{/admin/notification/add}"
+                  method="post"
+                  th:object="${notification}">
+
+                <!-- Title -->
+                <div class="form-group">
+                    <label>Tiêu đề</label>
+                    <input type="text"
+                           class="form-control"
+                           th:field="*{titleNotification}"
+                           required>
+                </div>
+
+                <!-- Message -->
+                <div class="form-group">
+                    <label>Nội dung</label>
+                    <textarea class="form-control"
+                              th:field="*{messageNotification}"
+                              rows="4"
+                              required></textarea>
+                </div>
+
+                <!-- Type -->
+                <div class="form-group">
+                    <label>Loại notification</label>
+                    <select class="form-control"
+                            id="typeNotification"
+                            th:field="*{typeNotification}"
+                            onchange="onTypeChange()">
+                        <option th:each="t : ${types}"
+                                th:value="${t}"
+                                th:text="${t}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Receiver -->
+                <div class="form-group">
+                    <label>Đối tượng nhận</label>
+                    <select class="form-control"
+                            th:field="*{receiverType}">
+                        <option th:each="r : ${receivers}"
+                                th:value="${r}"
+                                th:text="${r}">
+                        </option>
+                    </select>
+                    <small class="text-muted">
+                        Áp dụng khi Account ID để trống
+                    </small>
+                </div>
+
+                <!-- Product -->
+                <div class="form-group" id="productBox">
+                    <label>Sản phẩm</label>
+                    <select class="form-control"
+                            th:field="*{productId}">
+                        <option value="">-- Chọn sản phẩm --</option>
+                        <option th:each="p : ${products}"
+                                th:value="${p.id}"
+                                th:text="${p.nameProduct}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Category -->
+                <div class="form-group" id="categoryBox">
+                    <label>Danh mục</label>
+                    <select class="form-control"
+                            th:field="*{categoryId}">
+                        <option value="">-- Chọn danh mục --</option>
+                        <option th:each="c : ${categories}"
+                                th:value="${c.id}"
+                                th:text="${c.nameCategory}">
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Account -->
+                <div class="form-group">
+                    <label>Account ID (không bắt buộc)</label>
+                    <input type="number"
+                           class="form-control"
+                           th:field="*{accountId}">
+                    <small class="text-muted">
+                        Để trống = gửi cho toàn bộ theo đối tượng nhận
+                    </small>
+                </div>
+
+                <button type="submit"
+                        class="btn btn-success">
+                    Tạo thông báo
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

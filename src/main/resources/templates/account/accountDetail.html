@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/user :: content(~{this :: body})}">
+
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+
+<head>
+
+</head>
+
+<body>
+
+
+	<!-- Start Hero Section -->
+	<div class="hero">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="intro-excerpt">
+						<h1>About Us</h1>
+						<p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam
+							vulputate velit imperdiet dolor tempor tristique.</p>
+						<p><a th:href="@{/product}" class="btn btn-secondary me-2">Account Detail</a><a href="#"
+								class="btn btn-white-outline">Explore</a></p>
+					</div>
+				</div>
+				<div class="col-lg-7">
+					<div class="hero-img-wrap">
+						<img th:src="@{/assets/user/images/couch.png}" class="img-fluid">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- End Hero Section -->
+
+	<!-- Start Account Detail Section -->
+	<div class="untree_co-section bg-light">
+		<div class="container">
+
+
+
+			<div class="container my-5">
+				<div class="row g-4">
+
+					<!-- LEFT: ACCOUNT INFO -->
+					<div class="col-lg-4">
+						<div class="card account-card h-100">
+							<div class="card-body">
+								<h4 class="mb-4">Thông tin cá nhân</h4>
+
+								<p><strong>Họ tên:</strong> <span th:text="${account.fullName}"></span></p>
+								<p><strong>Email:</strong> <span th:text="${account.email}"></span></p>
+								<p><strong>Tài khoản:</strong> <span th:text="${account.username}"></span></p>
+
+								<div class="d-grid gap-3 mt-4">
+									<a href="/account/update" class="btn btn-dark">Cập nhật thông tin</a>
+									<a href="/logout" class="btn btn-outline-dark">Đăng xuất</a>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- RIGHT: ORDERS -->
+					<div class="col-lg-8">
+						<div class="card account-card">
+							<div class="card-body">
+								<h4 class="mb-4">Hóa đơn của bạn</h4>
+
+								<div th:if="${currentOrder.empty}" class="alert alert-info text-center">
+									Bạn chưa có đơn hàng nào
+								</div>
+
+								<div class="row g-4" th:if="${!currentOrder.empty}">
+									<div class="col-md-6" th:each="order : ${currentOrder}">
+										<div class="order-card">
+											<div class="d-flex justify-content-between align-items-center mb-2">
+												<span class="fw-bold">#<span th:text="${order.id}"></span></span>
+
+												<span th:switch="${order.orderStatus.name()}">
+													<span th:case="'COMPLETED'"
+														class="badge bg-success">COMPLETED</span>
+													<span th:case="'PROCESSING'"
+														class="badge bg-warning">PROCESSING</span>
+													<span th:case="'SHIPPING'" class="badge bg-info">SHIPPING</span>
+													<span th:case="'CREATED'" class="badge bg-secondary">CREATED</span>
+													<span th:case="*" class="badge bg-danger"
+														th:text="${order.orderStatus}"></span>
+												</span>
+											</div>
+
+											<p>Tổng tiền:
+												<strong class="text-danger"
+													th:text="${#numbers.formatDecimal(order.totalAmount,0,'COMMA',0,'POINT')} + ' đ'"></strong>
+											</p>
+
+											<p>Ngày tạo:
+												<span th:text="${#dates.format(order.createdAt,'dd/MM/yyyy')}"></span>
+
+											</p>
+
+											<a th:href="@{/order/{id}(id=${order.id})}"
+												class="btn btn-dark w-100 mt-2">Xem chi tiết</a>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me -->
+
+</html>

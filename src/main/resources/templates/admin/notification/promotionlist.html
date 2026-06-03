@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/seller :: content(~{this :: body})}">
+
+<body>
+	<div class="container-fluid">
+
+		<!-- TITLE -->
+		<h1 class="h3 mb-4 text-gray-800">
+			<i class="fas fa-shopping-cart mr-2"></i>Sản phẩm đã bán
+		</h1>
+
+		<div class="card shadow-sm mb-4">
+			<div class="card-header py-3 d-flex justify-content-between align-items-center">
+				<h6 class="m-0 font-weight-bold text-primary">
+					Danh sách sản phẩm 
+				</h6>
+			</div>
+
+			<div class="card-body">
+				<div class="table-responsive">
+
+					<table class="table table-bordered table-hover align-middle text-center">
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Danh mục</th>
+								<th class="text-left">Tên sản phẩm</th>
+								<th>Giá bán</th>
+								<th>Số lượng</th>
+								<th>Ảnh</th>
+								<th>SKU</th>
+								<th>Trạng thái</th>
+								<th>Ngày bán</th>
+								<th>Hành động</th>
+							</tr>
+						</thead>
+
+						<tbody>
+							<tr th:each="p : ${products}"
+								th:onclick="|window.location.href='@{/seller/editproduct/{productId}(productId=${p.id})}'|"
+								style="cursor:pointer;">
+								<td th:text="${p.id}"></td>
+
+								<td th:text="${p.categoryName}"></td>
+
+								<td class="text-left font-weight-bold" th:text="${p.nameProduct}">
+								</td>
+
+								<td class="text-danger font-weight-bold">
+									<span th:text="${#numbers.formatDecimal(p.price,0,'COMMA',0,'POINT')}"></span> $
+								</td>
+
+								<td>
+									<span class="badge badge-info" th:text="${p.stockQuantity}">
+									</span>
+								</td>
+
+								<td>
+									<img th:src="@{'/assets/images/' + ${p.photo}}" class="rounded shadow-sm"
+										style="width:60px;height:60px;object-fit:cover;">
+								</td>
+
+								<td th:text="${p.sku}"></td>
+
+								<td>
+									<span class="badge px-3 py-2" th:text="${p.status}" th:classappend="
+                                    ${p.status.name() == 'ACTIVE'} ? ' badge-success' :
+                                    (${p.status.name() == 'PENDING'} ? ' badge-warning' : ' badge-danger')
+                                  ">
+									</span>
+								</td>
+
+								<td th:text="${#dates.format(p.createdAt,'dd/MM/yyyy')}"></td>
+
+								<!-- ACTION -->
+								<td onclick="event.stopPropagation();">
+									<form th:action="@{/seller/deleteproduct/{id}(id=${p.id})}" method="post"
+										onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này không?');">
+										<button type="submit" class="btn btn-sm btn-danger"> Xóa </button> </form>
+								</td>
+							</tr>
+
+							<!-- EMPTY -->
+							<tr th:if="${#lists.isEmpty(products)}">
+								<td colspan="10" class="text-center text-muted py-4">
+									<i class="fas fa-box-open fa-2x mb-2"></i><br>
+									Chưa có sản phẩm nào được bán
+								</td>
+							</tr>
+
+						</tbody>
+					</table>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+
+</html>

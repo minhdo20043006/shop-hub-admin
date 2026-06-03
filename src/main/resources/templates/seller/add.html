@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/seller :: content(~{this :: body})}">
+
+<head>
+
+
+</head>
+
+<body id="page-top">
+
+	<div class="container-fluid">
+
+		<!-- Page Heading -->
+
+		<th:block th:text="${error}"></th:block>
+		<h1 class="h3 mb-4 text-gray-800">Thêm sản phẩm</h1>
+
+		<div class="card shadow mb-4">
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+			</div>
+
+			<div class="card-body">
+				<form th:action="@{/seller/add}" method="post" th:object="${product}" enctype="multipart/form-data">
+
+					<!-- Tên sản phẩm -->
+					<div class="form-group">
+						<label>Tên sản phẩm</label>
+						<input type="text" class="form-control" th:field="*{nameProduct}" required>
+					</div>
+
+					<!-- Category -->
+					<div class="form-group">
+						<label>Danh mục</label>
+						<select class="form-control" th:field="*{categoryId}" required>
+							<option value="">-- Chọn danh mục --</option>
+							<option th:each="c : ${categories}" th:value="${c.id}" th:text="${c.nameCategory}">
+							</option>
+						</select>
+
+
+					</div>
+
+					<!-- Giá + Giá giảm -->
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label>Giá gốc</label>
+							<input type="number" class="form-control" th:field="*{price}" step="0.01">
+						</div>
+						<div class="form-group col-md-6">
+							<label>Giá giảm</label>
+							<input type="number" class="form-control" th:field="*{discountPrice}" step="0.01">
+						</div>
+					</div>
+
+					<!-- Kho + SKU -->
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label>Số lượng tồn</label>
+							<input type="number" class="form-control" th:field="*{stockQuantity}">
+						</div>
+						<div class="form-group col-md-6">
+							<label>SKU</label>
+							<input type="text" class="form-control" th:field="*{sku}">
+						</div>
+					</div>
+
+					<!-- Cân nặng + Kích thước -->
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label>Cân nặng (kg)</label>
+							<input type="number" class="form-control" th:field="*{weight}" step="0.01">
+						</div>
+						<div class="form-group col-md-6">
+							<label>Kích thước</label>
+							<input type="text" class="form-control" th:field="*{dimensions}">
+						</div>
+					</div>
+
+					<!-- Mô tả -->
+					<div class="form-group">
+						<label>Mô tả</label>
+						<textarea class="form-control" rows="4" th:field="*{description}"></textarea>
+					</div>
+
+
+					<hr>
+
+					<!-- Buttons -->
+					<button type="submit" class="btn btn-success btn-icon-split">
+						<span class="icon text-white-50">
+							<i class="fas fa-check"></i>
+						</span>
+						<span class="text">Lưu sản phẩm</span>
+					</button>
+
+					<a th:href="@{/seller/index}" class="btn btn-secondary btn-icon-split ml-2">
+						<span class="icon text-white-50">
+							<i class="fas fa-arrow-left"></i>
+						</span>
+						<span class="text">Quay lại</span>
+					</a>
+
+				</form>
+			</div>
+		</div>
+
+
+	</div>
+
+</body>
+
+</html>

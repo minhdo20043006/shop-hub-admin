@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+	<div class="container-fluid">
+
+		<h1 class="h3 mb-4 text-gray-800">Quản lý Category</h1>
+
+		<div class="card shadow mb-4">
+
+			<div class="card-header py-3">
+				<h6 class="m-0 font-weight-bold text-primary">
+					Danh sách Category
+				</h6>
+			</div>
+
+			<div class="card-body">
+
+				<div class="table-responsive">
+					<table class="table table-bordered table-hover">
+
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Category ID</th>
+								<th>Tên gốc</th>
+								<th>Tên hiển thị</th>
+								<th>Mô tả</th>
+								<th>Trạng thái</th>
+								<th>Ngày tạo</th>
+								<th>Ngày cập nhật</th>
+								<th width="160">Promotion</th>
+							</tr>
+						</thead>
+
+						<tbody>
+
+							<tr th:each="c : ${categories}">
+								<td>
+									<a th:href="@{'/admin/promotioncategory/listpfc/'+${c.id}}" th:text="${c.id}"></a>
+								</td>
+								<td th:text="${c.categoryId}"></td>
+								<td th:text="${c.categoryNameOrigin}"></td>
+								<td th:text="${c.nameCategory}"></td>
+								<td th:text="${c.description}"></td>
+								<td class="text-center">
+									<span class="badge badge-success" th:if="${c.status.name() == 'ACTIVE'}">
+										ACTIVE
+									</span>
+									<span class="badge badge-secondary" th:if="${c.status.name() != 'ACTIVE'}">
+										INACTIVE
+									</span>
+								</td>
+								<td th:text="${#dates.format(c.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+								<td th:text="${#dates.format(c.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+
+								<td class="text-center">
+									<a th:href="@{/admin/promotioncategory/assign(categoryId=${c.id})}"
+										class="btn btn-sm btn-outline-primary">
+										<i class="fas fa-tags"></i>
+										Gán Promotion
+									</a>
+								</td>
+							</tr>
+
+							<tr th:if="${#lists.isEmpty(categories)}">
+								<td colspan="8" class="text-center text-muted">
+									Không có category nào
+								</td>
+							</tr>
+
+						</tbody>
+
+					</table>
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+</body>
+
+</html>

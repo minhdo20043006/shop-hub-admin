@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body>
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">
+        Gán Promotion cho Category
+    </h1>
+
+    <div class="card shadow mb-4">
+
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Category ID:
+                <span th:text="${category.id}"></span>
+                -
+                <span th:text="${category.nameCategory}"></span>
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <form th:action="@{/admin/promotioncategory/assign}"
+                  method="post">
+
+                <input type="hidden" name="categoryId"
+                       th:value="${category.id}"/>
+
+                <!-- SELECT PROMOTION -->
+                <div class="form-group">
+                    <label>Chọn Promotion</label>
+                    <select name="promotionId"
+                            class="form-control"
+                            required>
+                        <option value="">-- Chọn promotion --</option>
+
+                        <option th:each="p : ${promotions}"
+                                th:value="${p.id}"
+                                th:text="${p.namePromotion}">
+                        </option>
+                    </select>
+                </div>
+
+                <button class="btn btn-success">
+                    <i class="fas fa-check"></i>
+                    Gán Promotion
+                </button>
+
+                <a th:href="@{/admin/account}"
+                   class="btn btn-secondary">
+                    Quay lại
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

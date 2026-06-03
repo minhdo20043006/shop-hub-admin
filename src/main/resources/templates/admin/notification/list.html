@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/admin :: content(~{this :: body})}">
+
+<head></head>
+
+<body id="page-top">
+
+<div class="container-fluid">
+
+    <h1 class="h3 mb-4 text-gray-800">Thông báo của bạn</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+                Danh sách thông báo
+            </h6>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Không có thông báo -->
+            <div th:if="${#lists.isEmpty(notifications)}"
+                 class="text-center text-muted">
+                Không có thông báo nào
+            </div>
+
+            <!-- Có thông báo -->
+            <div th:if="${!#lists.isEmpty(notifications)}">
+
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Tiêu đề</th>
+                            <th>Nội dung</th>

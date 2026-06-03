@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="content(mainContent)">
+
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="author" content="Untree.co">
+	<!--ICON -->
+	<link rel="shortcut icon" th:href="@{/assets/user/images/favicon.png}">
+
+	<meta name="description" content="" />
+	<meta name="keywords" content="bootstrap, bootstrap4" />
+
+	<!-- Bootstrap CSS -->
+	<link th:href="@{/assets/user/css/bootstrap.min.css}" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+	<link th:href="@{/assets/user/css/tiny-slider.css}" rel="stylesheet">
+	<link th:href="@{/assets/user/css/style.css}" rel="stylesheet">
+	<link th:href="@{/assets/css/chat.css}" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+	<title>Online ShopHup</title>
+</head>
+
+<body>
+
+	<!-- Start Header/Navigation -->
+	<nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
+
+		<div class="container">
+			<a class="navbar-brand" th:href="@{/home}">ShopHup<span>.</span></a>
+
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni"
+				aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+
+			<div class="collapse navbar-collapse" id="navbarsFurni">
+				<ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+					<li class="nav-item active">
+						<a class="nav-link" th:href="@{/home}">Home</a>
+					</li>
+					<li><a class="nav-link" th:href="@{/product}">Shop</a></li>
+					<li><a class="nav-link" th:href="@{/abount}">About us</a></li>
+					<li><a class="nav-link" th:href="@{/services}">Services</a></li>
+					<li><a class="nav-link" th:href="@{/blog}">Blog</a></li>
+					<li><a class="nav-link" th:href="@{/contact}">Contact us</a></li>
+				</ul>
+
+
+				<ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5 align-items-center">
+
+					<!-- USER -->
+					<li class="nav-item account-dropdown">
+
+						<!-- CHƯA ĐĂNG NHẬP -->
+						<a th:if="${currentAccount == null}" th:href="@{/auth/login}" class="nav-link">
+							<img th:src="@{/assets/user/images/user.svg}">
+							Đăng nhập
+						</a>
+
+						<!-- ĐÃ ĐĂNG NHẬP -->
+						<div th:if="${currentAccount != null}" class="account-trigger nav-link"
+							onclick="toggleAccountMenu(event)">
+							<img th:src="@{/assets/user/images/user.svg}">
+							Xin chào, <span th:text="${currentAccount.fullName}"></span>
+							<i class="fa-solid fa-caret-down ms-1"></i>
+						</div>
+
+						<!-- MENU XỔ -->
+						<div th:if="${currentAccount != null}" class="account-menu" id="accountMenu">
+							<a th:href="@{/account/accountDetail}">
+								<i class="fa-solid fa-user"></i> Thông tin tài khoản
+							</a>
+
+							<a th:href="@{'/account/updateAccount/' + ${currentAccount.id}}">
+								<i class="fa-solid fa-pen"></i> Cập nhật
+							</a>
+
+							<!-- CHƯA CÓ SELLER -->
+							<a th:if="${!sellerStatus.exists}" th:href="@{/seller/create}">
+								<i class="fa-solid fa-store"></i>
+								Trở thành người bán
+							</a>
+
+							<!-- ĐANG CHỜ DUYỆT -->
+							<span th:if="${sellerStatus.exists 
+							        and sellerStatus.status.name() == 'PENDING'}" class="text-warning">
+								<i class="fa-solid fa-hourglass-half"></i>
+								Hồ sơ đang chờ phê duyệt
+							</span>
+
+							<!-- ĐÃ DUYỆT -->
+							<a th:if="${sellerStatus.exists 
+							        and sellerStatus.status.name() == 'APPROVED'}" th:href="@{/seller/index}">
+								<i class="fa-solid fa-store"></i>
+								Trang bán hàng
+							</a>
+
+							<!-- BỊ TỪ CHỐI -->
+							<a th:if="${sellerStatus.exists 
+							        and sellerStatus.status.name() == 'REJECTED'}" th:href="@{/seller/create}" class="text-danger">
+								<i class="fa-solid fa-circle-xmark"></i>
+								Hồ sơ bị từ chối – đăng ký lại
+							</a>
+
+
+
+							<hr>
+
+							<a href="/account/logout" class="logout">
+								<i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+							</a>
+						</div>
+
+					</li>
+
+
+
+					<li class="nav-item dropdown ms-3">
+						<a th:if="${currentAccount == null}" class="nav-link position-relative" href="#" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa-regular fa-bell fs-5 text-white"></i>
+						</a>
+						<a th:if="${currentAccount != null}" class="nav-link position-relative" href="#" role="button"
+							data-bs-toggle="dropdown" aria-expanded="false">
+							<i class="fa-regular fa-bell fs-5 text-white"></i>
+							<!-- badge số thông báo -->
+							<span th:if="${!#lists.isEmpty(currentNotifications)}"
+								class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+								th:text="${#lists.size(currentNotifications)}">
+							</span>
+
+
+						</a>
+
+						<ul class="dropdown-menu dropdown-menu-end shadow notifications">
+							<li class="dropdown-header fw-bold">Thông báo</li>
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+
+							<li class="p-0">
+								<ul class="notification-list">
+									<li th:each="noti : ${currentNotifications}"
+										th:classappend="${noti.read} ? 'read' : 'unread'">
+
+										<a th:href="@{/notification/open/{id}(id=${noti.id})}" class="notification-item"
+											th:data-id="${noti.id}" th:data-product-id="${noti.productId}"
+											th:data-type="${noti.typeNotification}" onclick="openNotification(this)">
+
+											<div class="noti-type" th:text="${noti.typeNotification}"></div>
+											<div class="noti-title" th:text="${noti.titleNotification}"></div>
+										</a>
+									</li>
+
+									<li class="view-all">
+										<a href="/notifications">Xem tất cả</a>
+									</li>
+								</ul>
+							</li>
+						</ul>
+
+					</li>
+
+					<!-- 🛒 CART -->
+					<li class="nav-item ms-3">
+						<a class="nav-link" th:href="@{/cart}">
+							<img th:src="@{/assets/user/images/cart.svg}">
+						</a>
+					</li>
+				</ul>
+
+			</div>
+		</div>
+
+	</nav>
+	<!-- End Header/Navigation -->
+
+	<!-- Start Hero Section -->
+
+	<th:block th:replace="${mainContent} ?: _"></th:block>
+
+	<input type="checkbox" id="chat-toggle">
+
+    <label for="chat-toggle" class="chat-trigger" th:if="${currentAccount != null}">
+        <i class="fa-regular fa-comments me-1"></i> Chat
+    </label>
+
+    <div class="chat-container" th:if="${currentAccount != null}">
+        <div class="chat-sidebar">
+            <div class="sidebar-header">
+				<input type="text" class="sidebar-search" placeholder="Search contact..."/>
+			</div>
+            <div class="user-list" id="chat-user-list">
+                <!-- Chat units will be loaded here -->
+            </div>
+        </div>
+
+        <div class="chat-main" id="chat-room-area" style="display: none;">
+            <div class="chat-header" id="active-chat-name">Select a conversation</div>
+            <div class="message-area" id="message-container">
+                <!-- Messages will be loaded here -->
+            </div>
+            <div class="input-area">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button class="send-btn" onclick="sendChatMessage()">Send</button>
+            </div>
+        </div>
+        <div class="chat-main-empty" id="chat-empty-state" style="justify-content: center; align-items: center; display: flex; flex: 1;">
+            <p>Select a chat to start messaging</p>
+        </div>
+    </div>
+
+	<!-- Start Footer Section -->
+	<footer class="footer-section">
+		<div class="container relative">
+
+			<div class="sofa-img">
+				<img th:src="@{/assets/user/images/sofa.png}" alt="Image" class="img-fluid">
+			</div>
+
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="subscription-form">
+						<h3 class="d-flex align-items-center"><span class="me-1"><img
+									th:src="@{/assets/user/images/envelope-outline.svg}" alt="Image"
+									class="img-fluid"></span><span>Subscribe to Newsletter</span></h3>
+
+						<form action="#" class="row g-3">
+							<div class="col-auto">
+								<input type="text" class="form-control" placeholder="Enter your name">
+							</div>
+							<div class="col-auto">
+								<input type="email" class="form-control" placeholder="Enter your email">
+							</div>
+							<div class="col-auto">
+								<button class="btn btn-primary">
+									<span class="fa fa-paper-plane"></span>
+								</button>
+							</div>
+						</form>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="row g-5 mb-5">
+				<div class="col-lg-4">
+					<div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">Furni<span>.</span></a></div>
+					<p class="mb-4">Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus
+						malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.
+						Pellentesque habitant</p>
+
+					<ul class="list-unstyled custom-social">
+						<li><a href="#"><span class="fa-brands fa-facebook-f"></span></a></li>
+						<li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li>
+						<li><a href="#"><span class="fa fa-brands fa-instagram"></span></a></li>
+						<li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li>
+					</ul>
+				</div>
+
+				<div class="col-lg-8">
+					<div class="row links-wrap">
+						<div class="col-6 col-sm-6 col-md-3">
+							<ul class="list-unstyled">
+								<li><a href="#">About us</a></li>
+								<li><a href="#">Services</a></li>
+								<li><a href="#">Blog</a></li>
+								<li><a href="#">Contact us</a></li>
+							</ul>
+						</div>
+
+						<div class="col-6 col-sm-6 col-md-3">
+							<ul class="list-unstyled">
+								<li><a href="#">Support</a></li>
+								<li><a href="#">Knowledge base</a></li>
+								<li><a href="#">Live chat</a></li>
+							</ul>
+						</div>
+
+						<div class="col-6 col-sm-6 col-md-3">
+							<ul class="list-unstyled">
+								<li><a href="#">Jobs</a></li>
+								<li><a href="#">Our team</a></li>
+								<li><a href="#">Leadership</a></li>
+								<li><a href="#">Privacy Policy</a></li>
+							</ul>
+						</div>
+
+						<div class="col-6 col-sm-6 col-md-3">
+							<ul class="list-unstyled">
+								<li><a href="#">Nordic Chair</a></li>
+								<li><a href="#">Kruzo Aero</a></li>
+								<li><a href="#">Ergonomic Chair</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="border-top copyright">
+				<div class="row pt-4">
+					<div class="col-lg-6">
+						<p class="mb-2 text-center text-lg-start">Copyright &copy;
+							<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash;
+							Designed with love by <a href="https://untree.co">Untree.co</a> Distributed By <a
+								hreff="https://themewagon.com">ThemeWagon</a>
+							<!-- License information: https://untree.co/license/ -->
+						</p>
+					</div>
+
+					<div class="col-lg-6 text-center text-lg-end">
+						<ul class="list-unstyled d-inline-flex ms-auto">
+							<li class="me-4"><a href="#">Terms &amp; Conditions</a></li>
+							<li><a href="#">Privacy Policy</a></li>
+						</ul>
+					</div>
+
+				</div>
+			</div>
+
+		</div>
+	</footer>
+	<!-- End Footer Section -->
+
+
+	<script th:src="@{/assets/user/js/bootstrap.bundle.min.js}"></script>
+	<script th:src="@{/assets/user/js/tiny-slider.js}"></script>
+	<script th:src="@{/assets/user/js/custom.js}"></script>
+
+	<script>
+		window.onload = function () {
+
+			console.log("Page loaded");
+
+			let thumbs = document.querySelectorAll(".img-thumb");
+
+			thumbs.forEach(function (img) {
+				img.onclick = function () {
+
+					console.log("Image clicked");
+
+					let src = this.getAttribute("data-img");
+					document.getElementById("modalImage").src = src;
+
+					let modal = new bootstrap.Modal(
+						document.getElementById("imageModal")
+					);
+					modal.show();
+				};
+			});
+
+		};
+	</script>
+
+	<!--
+	<script>
+		function openNotification(el) {
+			const notiId = el.dataset.id;
+			const productId = el.dataset.productId;
+			const orderId = el.dataset.orderId;
+			const promotionId = el.dataset.promotionId;
+
+
+
+			// 🔹 Đánh dấu đã đọc (call API)
+			fetch(`/notifications/${notiId}/read`, {
+				method: "POST"
+			}).then(() => {
+				el.closest("li").classList.remove("unread");
+				el.closest("li").classList.add("read");
+			});
+
+			// 🔹 Điều hướng giống productDetail
+			if (productId) {
+				window.location.href = `/product/detail/${productId}`;
+			} else if (orderId) {
+				window.location.href = `/order/detail/${orderId}`;
+			} else if (promotionId) {
+				window.location.href = `/promotion/detail/${promotionId}`;
+			}
+		}
+	</script>
+	-->
+	<script>
+		function openNotification(el) {
+			const notiId = el.dataset.id;
+			const productId = el.dataset.productId;
+			const type = el.dataset.type;
+
+			// đánh dấu đã đọc
+			fetch(`/notifications/${notiId}/read`, {method: "POST"});
+
+			// điều hướng theo loại thông báo
+			if (type === "NEW_PRODUCT") {
+				window.location.href = `/product?fromNoti=NEW_PRODUCT&notiId=${notiId}`;
+			}
+			else if (type === "PROMOTION") {
+				window.location.href = `/product?fromNoti=PROMOTION&notiId=${notiId}`;
+			}
+		}
+	</script>
+
+	<script>
+		function changeQty(btn, delta) {
+
+			const container = btn.closest(".quantity-container");
+			const qtyInput = container.querySelector(".quantity-amount");
+			const price = parseFloat(qtyInput.dataset.price);
+
+			const row = btn.closest("tr");
+			const totalCell = row.querySelector(".item-total");
+			const cartItemId = row.dataset.cartItemId;
+
+			let qty = parseInt(qtyInput.value) + delta;
+			if (qty < 1) qty = 1;
+
+			qtyInput.value = qty;
+			totalCell.innerText = (qty * price).toLocaleString();
+
+			fetch("/cart/update", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded"
+				},
+				body: `cartItemId=${cartItemId}&quantity=${qty}`
+			}).then(res => {
+				if (!res.ok) alert("Cập nhật giỏ hàng thất bại");
+			});
+
+
+			calculateCartTotal();
+		}
+	</script>
+	<script>
+		function removeItem(btn, cartItemId) {
+
+			if (!confirm("Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng ?")) return;
+
+			fetch("/cart/remove", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded"
+				},
+				body: "cartItemId=" + cartItemId
+			})
+				.then(res => {
+					if (res.ok) {
+						// xóa luôn dòng <tr>
+						btn.closest("tr").remove();
+					} else {
+						alert("Xóa thất bại");
+					}
+				});
+		}
+	</script>
+
+	<script>
+		function calculateCartTotal() {
+			let subtotal = 0;
+
+			document.querySelectorAll("tr").forEach(row => {
+				const qtyInput = row.querySelector(".quantity-amount");
+				const priceCell = row.querySelector(".product-price");
+
+				if (!qtyInput || !priceCell) return;
+
+				const qty = parseInt(qtyInput.value);
+				const price = parseFloat(priceCell.innerText);
+
+				subtotal += qty * price;
+			});
+
+			document.getElementById("cart-subtotal").innerText = "$" + subtotal.toFixed(2);
+			document.getElementById("cart-total").innerText = "$" + subtotal.toFixed(2);
+		}
+
+		document.addEventListener("click", function (e) {
+			if (e.target.classList.contains("increase") || e.target.classList.contains("decrease")) {
+				setTimeout(calculateCartTotal, 50);
+			}
+		});
+
+		calculateCartTotal();
+	</script>
+
+	<script>
+		function applyCoupon() {
+			const code = document.getElementById("coupon").value;
+			let subtotal = parseFloat(
+				document.getElementById("cart-subtotal").innerText.replace("$", "")
+			);
+
+			let discount = 0;
+
+			if (code === "SALE10") {
+				discount = subtotal * 0.1;
+			}
+
+			document.getElementById("cart-discount").innerText = "-$" + discount.toFixed(2);
+			document.getElementById("cart-total").innerText = "$" + (subtotal - discount).toFixed(2);
+		}
+	</script>
+
+	<script>
+		function toggleAccountMenu(e) {
+			e.stopPropagation(); // không cho lan ra ngoài
+			const menu = document.getElementById("accountMenu");
+			menu.classList.toggle("show");
+		}
+
+		// Click ngoài thì đóng menu
+		document.addEventListener("click", function () {
+			const menu = document.getElementById("accountMenu");
+			if (menu) menu.classList.remove("show");
+		});
+	</script>
+
+	<!-- CHAT SCRIPT -->
+	<script th:inline="javascript" th:if="${currentAccount != null}">
+        console.log('>>> CHAT SCRIPT: Initializing for user ID:', /*[[${currentAccount.id}]]*/ null);
+		let stompClient = null;
+		let currentChatId = null;
+		const userId = /*[[${currentAccount.id}]]*/ null;
+		const jwtToken = /*[[${session.JWT}]]*/ '';
+        console.log('>>> CHAT SCRIPT: JWT Token available:', !!jwtToken);
+
+		function connect() {
+            console.log('>>> CHAT SCRIPT: Attempting to connect to WebSocket...');
+			const socket = new SockJS('http://localhost:8081/ws');
+			stompClient = Stomp.over(socket);
+			stompClient.connect({ 'Authorization': 'Bearer ' + jwtToken }, function (frame) {
+				console.log('>>> CHAT SCRIPT: Connected: ' + frame);
+				loadChatList();
+
+                // Subscribe to global refreshes for this user (for any chat activity)
+                stompClient.subscribe('/topic/user-chats/' + userId, function () {
+                    console.log('>>> Global refresh signal received');
+                    loadChatList();
+                });
+			}, function (error) {
+				console.error('>>> CHAT SCRIPT: STOMP error: ' + error);
+			});
+		}
+
+		function loadChatList() {
+			console.log('Fetching chat list...');
+			fetch('/user/chat/list')
+				.then(res => {
+					if (!res.ok) throw new Error('HTTP error ' + res.status);
+					return res.json();
+				})
+				.then(chats => {
+					console.log('Chats received:', chats);
+					const listEl = document.getElementById('chat-user-list');
+					listEl.innerHTML = '';
+					
+					if (chats.length === 0) {
+						listEl.innerHTML = '<div style="padding: 15px; text-align: center; color: #888;">No conversations yet</div>';
+						return;
+					}
+
+					chats.forEach(chat => {
+						const chatItem = document.createElement('div');
+						chatItem.className = 'user-item';
+                        if(currentChatId === chat.chatId) chatItem.classList.add('active');
+						chatItem.onclick = () => selectChat(chat.chatId, chat.chatName);
+						chatItem.innerHTML = `
+							<div class="avatar"></div>
+							<div class="user-info">
+								<div class="name">${chat.chatName}</div>
+								<div class="last-msg">${chat.lastMessage || ''}</div>
+							</div>
+						`;
+						listEl.appendChild(chatItem);
+					});
+				})
+				.catch(err => {
+					console.error('Failed to load chat list:', err);
+					document.getElementById('chat-user-list').innerHTML = '<div style="padding: 15px; color: red;">Error loading chats</div>';
+				});
+		}
+
+		function selectChat(chatId, chatName) {
+            console.log('Selecting chat:', chatId, chatName);
+			if (currentChatId && stompClient && stompClient.connected) {
+                try {
+				    stompClient.unsubscribe('sub-' + currentChatId);
+                } catch(e) { console.warn('Unsubscribe failed:', e); }
+			}
+
+			currentChatId = chatId;
+			document.getElementById('active-chat-name').innerText = chatName;
+			document.getElementById('chat-room-area').style.display = 'flex';
+			document.getElementById('chat-empty-state').style.display = 'none';
+
+            // Ensure window is open
+            const toggle = document.getElementById('chat-toggle');
+            if (toggle) toggle.checked = true;
+
+			// Subscribe if connected
+            if (stompClient && stompClient.connected) {
+                console.log('Subscribing to /topic/chat/' + chatId);
+                stompClient.subscribe('/topic/chat/' + chatId, function (msg) {
+                    showChatMessage(JSON.parse(msg.body));
+                    loadChatList(); // Refresh sidebar for received messages in active chat
+                }, { id: 'sub-' + chatId });
+            } else {
+                console.warn('stompClient not connected, will not receive real-time messages');
+            }
+
+			// Load history
+            console.log('Fetching history for chat:', chatId);
+			fetch(`/user/chat/${chatId}/messages`)
+				.then(res => res.json())
+				.then(page => {
+                    console.log('History received:', page);
+					const container = document.getElementById('message-container');
+					container.innerHTML = '';
+                    // PageDTO structure: { content: [], ... }
+                    const messages = page.content || [];
+					messages.slice().reverse().forEach(showChatMessage);
+				})
+                .catch(err => console.error('Error fetching history:', err));
+            
+            // Mark items in sidebar
+            document.querySelectorAll('.user-item').forEach(el => el.classList.remove('active'));
+            // Refetch or find element to mark active
+		}
+
+		function showChatMessage(message) {
+			const container = document.getElementById('message-container');
+			const msgEl = document.createElement('div');
+			msgEl.className = 'msg ' + (message.senderId === userId ? 'sent' : 'received');
+			msgEl.innerText = message.content;
+			container.appendChild(msgEl);
+			container.scrollTop = container.scrollHeight;
+		}
+
+		function sendChatMessage() {
+			const input = document.getElementById('chat-input');
+			const content = input.value.trim();
+			if (!content || !currentChatId) return;
+
+			const chatMessage = {
+				chatId: currentChatId,
+				content: content,
+				type: 'TEXT'
+			};
+
+			fetch('/user/chat/send', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(chatMessage)
+			}).then(res => {
+				if (res.ok) {
+					input.value = '';
+					loadChatList(); // Refresh sidebar for sent messages
+				}
+			});
+		}
+
+        // Enter key to send
+        document.getElementById('chat-input')?.addEventListener('keypress', function(e) {
+            if(e.key === 'Enter') sendChatMessage();
+        });
+
+		connect();
+	</script>
+
+</body>
+
+
+<!-- This website is like a Rocket, isn't it? Performance optimized by WP Rocket. Learn more: https://wp-rocket.me -->
+
+</html>
